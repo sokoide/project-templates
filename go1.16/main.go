@@ -31,7 +31,11 @@ func demoEmbedFS() {
 	}
 	fmt.Printf("embed FS: %s", data)
 
-	entries, _ := fs.ReadDir(staticFS, "static")
+	entries, err := fs.ReadDir(staticFS, "static")
+	if err != nil {
+		fmt.Printf("readdir error: %v\n", err)
+		return
+	}
 	fmt.Printf("embed FS entries:")
 	for _, e := range entries {
 		fmt.Printf(" %s", e.Name())

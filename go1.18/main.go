@@ -13,7 +13,7 @@ func Map[T any, U any](s []T, f func(T) U) []U {
 }
 
 func Filter[T any](s []T, pred func(T) bool) []T {
-	var result []T
+	result := make([]T, 0, len(s))
 	for _, v := range s {
 		if pred(v) {
 			result = append(result, v)

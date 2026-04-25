@@ -5,7 +5,6 @@ import (
 	"log/slog"
 	"os"
 	"slices"
-	"sort"
 )
 
 // --- slog ---
@@ -35,13 +34,13 @@ func demoMaps() {
 	for k := range m {
 		keys = append(keys, k)
 	}
-	sort.Strings(keys)
+	slices.Sort(keys)
 	fmt.Printf("keys: %v\n", keys)
 	var vals []int
 	for _, v := range m {
 		vals = append(vals, v)
 	}
-	sort.Ints(vals)
+	slices.Sort(vals)
 	fmt.Printf("values: %v\n", vals)
 }
 

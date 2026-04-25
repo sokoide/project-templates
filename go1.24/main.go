@@ -56,7 +56,10 @@ func demoOsRoot() {
 		fmt.Printf("create error: %v\n", err)
 		return
 	}
-	f.WriteString("hello from os.Root")
+	if _, err := f.WriteString("hello from os.Root"); err != nil {
+		fmt.Printf("write error: %v\n", err)
+		return
+	}
 	f.Close()
 
 	// Read via root
@@ -65,8 +68,12 @@ func demoOsRoot() {
 		fmt.Printf("open error: %v\n", err)
 		return
 	}
-	data, _ := io.ReadAll(f2)
+	data, err := io.ReadAll(f2)
 	f2.Close()
+	if err != nil {
+		fmt.Printf("read error: %v\n", err)
+		return
+	}
 	fmt.Printf("os.Root read: %s\n", data)
 }
 

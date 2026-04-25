@@ -63,7 +63,9 @@ func TestOsRootReadWrite(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	f.WriteString("test content")
+	if _, err := f.WriteString("test content"); err != nil {
+		t.Fatal(err)
+	}
 	f.Close()
 
 	f2, err := root.Open("subdir/test.txt")
