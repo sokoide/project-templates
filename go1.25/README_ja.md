@@ -1,6 +1,6 @@
 # Go 1.25 機能デモ
 
-Go 1.25 で追加された主要な機能をコードで解説します。
+Go 1.25 で追加された主要な機能を実際のコードで解説します。
 
 ## ビルドと実行
 
@@ -14,11 +14,10 @@ go test ./... # テスト
 
 ### 1. `testing/synctest` — 決定的な並行テスト
 
-ゴルーチンの終了を待つための `time.Sleep` が不要になり、
-テストの実行時間が短縮され Flaky テストを根絶できます。
+ゴルーチンの完了を確実に待機できるため、不安定な `time.Sleep` を排除し、Flaky テストを根絶できます。
 
 ```go
-// After (Go 1.25)
+// After
 synctest.Run(func() {
     go longRunningTask()
     synctest.Wait() // 確実に完了を待機
@@ -26,7 +25,7 @@ synctest.Run(func() {
 ```
 
 ```go
-// Before (Go 1.24)
+// Before
 // time.Sleep(100 * time.Millisecond)
 // // これで動くはず...（不安定なテストの原因）
 ```
@@ -35,9 +34,7 @@ synctest.Run(func() {
 
 ### 2. 並行コレクトパターン — ゴルーチン + チャネル
 
-複数のゴルーチンから結果をチャネルで集約する定番
-パターンです。`WaitGroup` で完了を待ち、メイン
-ゴルーチンで結果を収集します。
+複数の並行処理の結果を効率よく 1 箇所に集約し、処理の高速化と安全なデータ収集を両立できます。
 
 ```go
 var wg sync.WaitGroup
@@ -57,7 +54,7 @@ go func() {
 }()
 
 for v := range results {
-    fmt.Println(v) // 0, 10, 20（順序は不定）
+    fmt.Println(v) // 0, 10, 20
 }
 ```
 
@@ -65,8 +62,7 @@ for v := range results {
 
 ### 3. パイプラインパターン — チャネルで接続
 
-複数の処理ステージをチャネルで直列接続します。
-各ステージは独立したゴルーチンで並行実行されます。
+複雑な処理を独立したステージに分割してチャネルで接続でき、並行性とコードの再利用性を高められます。
 
 ```go
 in := make(chan int)
@@ -80,7 +76,7 @@ go func() {
     close(in)
 }()
 
-// Stage 2: 値を 2 倍
+// Stage 2: 加工
 go func() {
     for v := range in {
         out <- v * 2
@@ -97,9 +93,7 @@ for v := range out {
 
 ### 4. タイムアウト処理 — select + time.After
 
-`select` と `time.After` を組み合わせてタイムアウトを
-実装します。指定時間内に応答がなければ
-タイムアウト側のケースが実行されます。
+応答のない処理を安全に切り捨てることができ、システム全体のデッドロックやリソース枯渇を防止できます。
 
 ```go
 ch := make(chan string, 1)

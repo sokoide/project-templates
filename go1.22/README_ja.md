@@ -14,9 +14,7 @@ go test ./... # テスト
 
 ### 1. ループ変数のスコープ変更
 
-for ループの変数が反復ごとに新しく作成される
-ようになり、ゴルーチンでよく起きるキャプチャバグが
-消滅します。
+for ループの変数が反復ごとに新しく作成されるようになり、並行処理で頻出していた「変数のキャプチャミス」を構造的に排除できます。
 
 ```go
 for i := 0; i < 3; i++ {
@@ -27,30 +25,16 @@ for i := 0; i < 3; i++ {
 }
 ```
 
-Go 1.21 以前ではループ変数は全体で共有されるため、
-ゴルーチンが実行される時点で `i` が 3 に達していました。
-回避するには `i := i` や引数渡しが必要でした。
-
-```go
-// Go 1.21 以前の回避策
-for i := 0; i < 3; i++ {
-    i := i // シャドウイングで固有の変数を作る
-    go func() {
-        results = append(results, i)
-    }()
-}
-```
+Go 1.21 以前ではループ変数は全体で共有されるため、`i := i` などのシャドウイングを行わないと意図しない動作（全てのゴルーチンが同じ値を見る）が発生していました。
 
 ---
 
 ### 2. HTTP ルーティング — メソッドマッチングとパスパラメータ
 
-外部ルーター（chi, gorilla/mux 等）を導入せずとも、
-標準ライブラリだけで RESTful な API を簡潔かつ安全に
-構築できます。
+外部ルーター（chi, gorilla/mux 等）を導入せずとも、標準ライブラリだけで RESTful な API を簡潔かつ安全に構築できます。
 
 ```go
-// After (Go 1.22)
+// After
 mux.HandleFunc("GET /items/{id}", func(w http.ResponseWriter, r *http.Request) {
     id := r.PathValue("id")
     fmt.Fprintf(w, "item: %s", id)
@@ -58,14 +42,11 @@ mux.HandleFunc("GET /items/{id}", func(w http.ResponseWriter, r *http.Request) {
 ```
 
 ```go
-// Before (Go 1.21)
+// Before
 // 1. パスを strings.Split で解析して ID を抽出する
 // 2. r.Method == "GET" を自前でチェックする
 // 3. または外部ライブラリを依存関係に追加する
 ```
-
-メソッドチェック（405）やワイルドカード抽出が
-標準化されました。
 
 ---
 

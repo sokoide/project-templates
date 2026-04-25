@@ -15,8 +15,7 @@ make runtest  # テスト実行
 
 ### 1. `std::optional` — 値の有無を表す型
 
-「値がある」または「値がない」のどちらかを表現できる型です。
-エラーコードやセンチネル値を使わずに、安全に「見つからなかった」ことを伝えられます。
+エラーコードやセンチネル値を使わずに、安全に「値がない」ことを呼び出し側に伝えられます。
 
 ```cpp
 #include <optional>
@@ -41,8 +40,7 @@ C++17 以前では、戻り値として `-1` や `nullptr` などのセンチネ
 
 ### 2. `std::variant` — 型安全な共用体 (Type-safe union)
 
-複数の型のどれか一つを保持できる型です。
-従来の `union` と違い、どの型が入っているかを型安全に追跡できます。
+どの型が入っているかをランタイムで安全に追跡でき、不適切な型へのアクセスを未然に防ぎます。
 
 ```cpp
 #include <variant>
@@ -71,14 +69,13 @@ std::string value_type_name(const Value &v) {
 }
 ```
 
-従来の `union` はどのメンバが有効かをプログラマが手動で管理する必要があり、誤用すると未定義動作になりました。`std::variant` は型情報を内部で追跡するため安全です。
+従来の `union` はどのメンバが有効かをプログラマが手動で管理する必要があり、誤用すると未定義動作になりました。
 
 ---
 
 ### 3. `std::string_view` — 文字列の非所有参照
 
-`std::string` や文字列リテラルのデータをコピーせずに参照する軽量な型です。
-関数の引数として文字列を受け取る際、所有権のない参照として効率よく渡せます。
+文字列をコピーせずに参照でき、メモリ確保のオーバーヘッドなしに効率よく文字列操作を行えます。
 
 ```cpp
 #include <string_view>
@@ -100,16 +97,13 @@ size_t count_words(std::string_view sv) {
 printf("word count: %zu\n", count_words("hello world foo bar"));  // 4
 ```
 
-C++17 以前では、`const std::string&` を使うと暗黙のメモリ確保が発生し、
-`const char*` を使うとサイズ計算が毎回走るというトレードオフがありました。
-`std::string_view` はポインタと長さのペアを保持するため、
-どちらのデメリットも回避できます。
+C++17 以前では、`const std::string&` を使うと暗黙のメモリ確保が発生するリスクがありました。
 
 ---
 
 ### 4. 構造化束縛 (Structured bindings)
 
-構造体、`std::pair`、`std::tuple`、配列などの要素を個別の変数に一度に束縛できます。
+構造体やタプルの要素を個別の変数に一度に展開でき、冗長なアクセス用コードを排除できます。
 
 #### 構造体の場合
 
@@ -136,21 +130,13 @@ for (auto &[name, score] : scores) {
 }
 ```
 
-#### `std::tuple` の場合
-
-```cpp
-auto [x, y, z] = std::make_tuple(1, 2.5, "three");
-// x == 1, y == 2.5, z == "three"
-```
-
-C++17 以前では、`std::get<0>(tuple)` や `pair.first` / `pair.second` で個別にアクセスする必要がありました。
+C++17 以前では、`pair.first` / `pair.second` などで個別にアクセスする必要がありました。
 
 ---
 
 ### 5. Fold expressions — 可変長引数の畳み込み
 
-可変長テンプレート引数パックに対して二項演算子を適用できます。
-再帰的なテンプレート定義なしに、パラメータパックを簡潔に処理できます。
+再帰的なテンプレート定義なしに、パラメータパックに対する演算を 1 行で簡潔に記述できます。
 
 ```cpp
 template <typename... Args>
@@ -159,17 +145,15 @@ auto fold_sum(Args... args) {
 }
 
 printf("fold_sum(1..5)=%d\n", fold_sum(1, 2, 3, 4, 5));            // 15
-printf("fold_sum(1.1,2.2,3.3)=%.1f\n", fold_sum(1.1, 2.2, 3.3));  // 6.6
 ```
 
-C++17 以前では、可変長引数に対する演算を行うために再帰的なテンプレート関数を定義する必要がありました。Fold expressions により 1 行で書けるようになりました。
+C++17 以前では、可変長引数を処理するために複雑な再帰テンプレートが必要でした。
 
 ---
 
 ### 6. `if constexpr` — コンパイル時条件分岐
 
-コンパイル時に型の条件に基づいてコードの有無を切り替えられます。
-条件を満たさない分岐はコンパイルされないため、テンプレートの特殊化が不要になります。
+コンパイル時に条件に合わない分岐を完全に排除でき、テンプレートの特殊化を減らしてコードをシンプルに保てます。
 
 ```cpp
 template <typename T>
@@ -180,30 +164,20 @@ std::string stringify(T val) {
         return "float:" + std::to_string(val);
     }
 }
-
-printf("stringify(42)=%s\n", stringify(42).c_str());       // int:42
-printf("stringify(3.14)=%s\n", stringify(3.14).c_str());   // float:3.140000
 ```
-
-C++17 以前では、型ごとにテンプレート特殊化やオーバーロードを用意する必要がありました。`if constexpr` を使えば 1 つの関数テンプレート内で分岐できます。
 
 ---
 
 ### 7. CTAD (Class Template Argument Deduction) — クラステンプレート引数推論
 
-クラステンプレートのテンプレート引数をコンストラクタの引数から自動推論します。
-明示的にテンプレート引数を書く必要がなくなりました。
+コンストラクタの引数から型を自動推論させることで、煩わしいテンプレート引数の明示を省略できます。
 
 ```cpp
 std::pair p{1, 2};          // std::pair<int, int> と推論される
 std::optional opt{99};       // std::optional<int> と推論される
-
-printf("CTAD pair: (%d,%d)\n", p.first, p.second);
-printf("CTAD optional: %d\n", *opt);
 ```
 
-C++17 以前では `std::pair<int, int> p{1, 2}` のようにテンプレート引数を明示するか、
-`std::make_pair(1, 2)` などのヘルパー関数を使う必要がありました。
+C++17 以前では `std::make_pair(1, 2)` などのヘルパー関数が必要でした。
 
 ---
 

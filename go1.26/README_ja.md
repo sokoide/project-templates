@@ -1,6 +1,6 @@
 # Go 1.26 機能デモ
 
-Go 1.26 で追加された主要な機能をコードで解説します。
+Go 1.26 で追加された主要な機能を実際のコードで解説します。
 
 ## ビルドと実行
 
@@ -12,44 +12,40 @@ go test ./... # テスト
 
 ## 各機能の解説
 
-### 1. `new` 式初期化 — ポインタに値を指定して生成
+### 1. `new` 式初期化 — ポインタ生成の簡略化
 
-JSON パラメータやオプション設定で頻出する
-「値へのポインタ」を一時変数なしで一行で書けます。
+JSON パラメータやオプション設定で頻出する「値へのポインタ」を、一時変数なしで 1 行で書けます。
 
 ```go
-// After (Go 1.26)
+// After
 p := Person{
     Age: new(yearsSince(born)),
 }
 ```
 
 ```go
-// Before (Go 1.25)
+// Before
 age := yearsSince(born)
 p := Person{
-    Age: &age, // 直接 &yearsSince(born) とは書けなかった
+    Age: &age,
 }
 ```
 
 ---
 
-### 2. 自己参照型制約 (Self-referential type constraints)
+### 2. 自己参照型制約 — 再帰的な型制約
 
-「自分と同じ型を引数に取る」ような再帰的な型制約を、
-ハックなしで自然に記述できるようになります。
+「自分と同じ型を引数に取る」ような再帰的な型制約を、ハックなしで自然に記述できるようになります。
 
 ```go
-// After (Go 1.26)
+// After
 type Adder[A Adder[A]] interface {
     Add(A) A
 }
 ```
 
 ```go
-// Before (Go 1.25)
-// 同様の定義をしようとすると
-// "invalid recursive type" エラーが発生し、
+// Before
 // ジェネリクスを用いない interface 定義などで
 // 妥協する必要がありました。
 ```
@@ -58,19 +54,17 @@ type Adder[A Adder[A]] interface {
 
 ### 3. `errors.AsType` — ジェネリック版 `errors.As`
 
-ターゲット変数の宣言を分離する必要がなくなり、
-`if` 文の条件式の中で完結するため変数スコープを
-最小限に抑えられます。
+ターゲット変数の宣言を分離する必要がなくなり、`if` 文の条件式の中で完結するため変数スコープを最小限に抑えられます。
 
 ```go
-// After (Go 1.26)
+// After
 if ne, ok := errors.AsType[*NotFoundError](err); ok {
     fmt.Println(ne.Name)
 }
 ```
 
 ```go
-// Before (Go 1.25)
+// Before
 var ne *NotFoundError
 if errors.As(err, &ne) {
     fmt.Println(ne.Name)
@@ -81,19 +75,17 @@ if errors.As(err, &ne) {
 
 ### 4. `reflect` イテレータ — 構造体フィールドの反復
 
-リフレクションを用いたメタプログラミングにおいて、
-泥臭いインデックスループが消え `range` で直感的に
-スキャンできるようになります。
+リフレクションを用いたメタプログラミングにおいて、泥臭いインデックスループが消え `range` で直感的にスキャンできるようになります。
 
 ```go
-// After (Go 1.26)
+// After
 for field, val := range reflect.ValueOf(p).Fields() {
     fmt.Printf("%s=%v\n", field.Name, val.Int())
 }
 ```
 
 ```go
-// Before (Go 1.25)
+// Before
 t := reflect.TypeOf(p)
 for i := 0; i < t.NumField(); i++ {
     fmt.Println(t.Field(i).Name)
@@ -104,40 +96,34 @@ for i := 0; i < t.NumField(); i++ {
 
 ### 5. `slog.NewMultiHandler` — 複数ログハンドラの統合
 
-「標準出力とファイルの双方にログを出したい」といった
-定番の要件が、外部ライブラリや自前実装なしで
-1 行で解決します。
+「標準出力とファイルの双方にログを出したい」といった定番の要件が、外部ライブラリや自前実装なしで 1 行で解決します。
 
 ```go
-// After (Go 1.26)
+// After
 handler := slog.NewMultiHandler(stdoutHandler, fileHandler)
 ```
 
 ```go
-// Before (Go 1.25)
+// Before
 // 複数のハンドラをラップして各メソッドを転送する
-// 構造体を自前で実装するか、サードパーティ製の
-// マルチハンドラを利用する必要がありました。
+// 構造体を自前で実装する必要がありました。
 ```
 
 ---
 
 ### 6. `bytes.Buffer.Peek` — 読み込み位置を進めずに覗き見
 
-バッファの内容を消費せずに先頭を確認するために、
-わざわざ `bufio.Reader` でラップする手間がなくなります。
+バッファの内容を消費せずに先頭を確認するために、わざわざ `bufio.Reader` でラップする手間がなくなります。
 
 ```go
-// After (Go 1.26)
+// After
 peeked, _ := buf.Peek(5) // 消費せずに中身を確認
 ```
 
 ```go
-// Before (Go 1.25)
-// bytes.Buffer には Peek がなかったため、
+// Before
 // 1. bufio.NewReader(&buf) でラップする
 // 2. buf.Bytes() でスライスを直接触る
-//    （書き込みがあると無効になるリスクあり）
 // といった工夫が必要でした。
 ```
 
@@ -145,8 +131,7 @@ peeked, _ := buf.Peek(5) // 消費せずに中身を確認
 
 ### 7. Green Tea GC — 新ガベージコレクタのデフォルト化
 
-コードを 1 行も変えることなくコンパイルし直すだけで、
-実行時の GC オーバーヘッドが最大 40% 削減されます。
+コードを 1 行も変えることなくコンパイルし直すだけで、実行時の GC オーバーヘッドが最大 40% 削減されます。
 
 ```text
 // Go 1.26 では「何もしない」のが最善です。
@@ -159,8 +144,6 @@ peeked, _ := buf.Peek(5) // 消費せずに中身を確認
 | **改善幅** | 10-40% のオーバーヘッド削減 |
 | **仕組み** | 小オブジェクトのスキャン効率化とスケーラビリティ向上 |
 | **ハードウェア最適化** | Ice Lake / Zen 4 以降でベクトル命令により加速 |
-
-Go 1.5 の並行化以来、最も大きな GC の進化と言えます。
 
 ---
 

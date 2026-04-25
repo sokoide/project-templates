@@ -14,9 +14,7 @@ go test ./... # テスト
 
 ### 1. `log/slog` — 構造化ログ
 
-key-value ペアでログを出力でき、JSON ハンドラへの
-切り替えも一行で可能。ログレベルの制御も
-`HandlerOptions` で統一的に管理できます。
+標準ライブラリだけで key-value ペアによる構造化ログを出力でき、サードパーティライブラリへの依存を減らしつつ柔軟なログ管理が可能になります。
 
 ```go
 logger := slog.New(slog.NewTextHandler(os.Stdout,
@@ -26,26 +24,22 @@ logger.Info("slog demo",
     "feature", "structured logging", "version", "1.21")
 ```
 
-Go 1.20 以前ではサードパーティの zerolog や zap に
-頼る必要がありました。標準ライブラリだけで
-構造化ログが書けるようになり、依存関係を減らせます。
+Go 1.20 以前では zerolog や zap に頼る必要がありましたが、標準化によりエコシステム全体の相互運用性が向上しました。
 
 ---
 
 ### 2. `slices` パッケージ — Sort, Contains, Index
 
-独自の比較関数（less 関数）を書く手間が省け、
-スライスの探索やソートを 1 行のメソッド呼び出しで
-完了できます。
+型ごとに異なるソート関数を呼び出す手間が省け、スライスの探索や操作をジェネリクスによって型安全かつ 1 行で完結できます。
 
 ```go
-// After (Go 1.21)
+// After
 slices.Sort(nums)
 found := slices.Contains(nums, 4)
 ```
 
 ```go
-// Before (Go 1.20)
+// Before
 sort.Ints(nums) // 型ごとにメソッドが分かれていた
 // 探索は for ループで自作する必要がありました
 ```
@@ -54,43 +48,38 @@ sort.Ints(nums) // 型ごとにメソッドが分かれていた
 
 ### 3. `maps` パッケージ — Keys, Values
 
-マップのキー一覧や値一覧が欲しいとき、
-ボイラープレートな for ループを書かずに済みます。
+マップのキー一覧や値一覧を取得するだけの冗長な for ループが不要になり、ボイラープレートコードを大幅に削減できます。
 
 ```go
-// After (Go 1.21)
+// After
 keys := maps.Keys(m)
 ```
 
 ```go
-// Before (Go 1.20)
+// Before
 keys := make([]string, 0, len(m))
 for k := range m {
     keys = append(keys, k)
 }
 ```
 
-キー一覧を取得するだけのコードが大幅に削減されます。
-
 ---
 
 ### 4. 組み込み `min` / `max` / `clear`
 
-整数型の最小・最大値を求めるためだけに `float64` への変換
-（`math.Min`）をする必要がなくなります。
-また、マップの再利用が容易になります。
+最小・最大値の計算を、型変換（`math.Min`）や `if` 文による自作なしで直感的に記述でき、マップのクリア処理も 1 行で効率的に行えます。
 
 ```go
-// After (Go 1.21)
-m := min(a, b, c) // 整数でも何でもOK
-clear(myMap)      // マップを空にする（メモリ領域は再利用）
+// After
+m := min(a, b, c) // 任意の比較可能型に対応
+clear(myMap)      // マップを効率的に空にする
 ```
 
 ```go
-// Before (Go 1.20)
+// Before
 m := a
-if b < m { m = b } // または math.Min(float64(a), float64(b))
-// マップのクリアは for k := range m { delete(m, k) }
+if b < m { m = b }
+// マップのクリアは for ループで delete を繰り返す必要がありました
 ```
 
 ---
