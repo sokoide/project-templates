@@ -1,0 +1,2 @@
+CompileFlags:
+  Add: [-std=c++17, -include=pch.hpp, -I/opt/homebrew/opt/googletest/include]

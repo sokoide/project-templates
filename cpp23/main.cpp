@@ -1,7 +1,6 @@
 #include "sub.h"
 
 #include <cstdio>
-#include <utility>
 
 int main() {
     //--- C++23: multidimensional operator[] ---

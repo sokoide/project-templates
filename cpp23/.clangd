@@ -1,2 +1,2 @@
 CompileFlags:
-  Add: [-include=pch.hpp, -I/opt/homebrew/opt/googletest/include]
+  Add: [-std=c++23, -include=pch.hpp, -I/opt/homebrew/opt/googletest/include]
