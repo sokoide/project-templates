@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "debug main",
+      "program": "${workspaceFolder}/target/debug/rust2024_demo",
+      "args": [],
+      "preLaunchTask": "cargo build"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "debug test",
+      "cargo": {
+        "args": ["test", "--no-run"]
+      }
+    }
+  ]
+}
