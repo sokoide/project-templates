@@ -14,3 +14,12 @@ out/
 *.swp
 *.swo
 .DS_Store
+
+# AI
+.claude
+.codex
+.gemini
+.omc
+.serena
+
+node_modules/

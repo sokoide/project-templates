@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "debug main",
+      "program": "./build/cpp20.out",
+      "args": [],
+      "preLaunchTask": "make"
+    },
+    {
+      "type": "lldb",
+      "request": "launch",
+      "name": "debug test",
+      "program": "./build/cpp20_test.out",
+      "args": [],
+      "preLaunchTask": "make test"
+    }
+  ]
+}
