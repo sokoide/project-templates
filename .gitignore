@@ -11,6 +11,10 @@ out/
 # Go binaries (go build output)
 go1.*/go1.*
 
+# Rust build artifacts
+target/
+Cargo.lock
+
 # IDE / OS
 # .vscode/
 .idea/

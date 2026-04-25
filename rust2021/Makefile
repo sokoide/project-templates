@@ -1,4 +1,4 @@
-.PHONY: build run test clean
+.PHONY: build run test check clean
 
 build:
 	cargo build
@@ -8,6 +8,10 @@ run:
 
 test:
 	cargo test
+
+check:
+	cargo fmt --check
+	cargo clippy -- -D warnings
 
 clean:
 	cargo clean

@@ -1,6 +1,6 @@
 use futures::executor::block_on;
 
-fn main() {
+fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("--- Rust 2018 Demo ---");
 
     // 1. async / .await
@@ -21,6 +21,8 @@ fn main() {
     let animal: Box<dyn Animal> = Box::new(Dog);
     animal.speak();
     println!("Debug: {:?}", Dog);
+
+    Ok(())
 }
 
 async fn say_hello() {
@@ -36,5 +38,36 @@ struct Dog;
 impl Animal for Dog {
     fn speak(&self) {
         println!("dyn Trait: Woof!");
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_dyn_trait() {
+        let animal: Box<dyn Animal> = Box::new(Dog);
+        // should not panic
+        animal.speak();
+    }
+
+    #[test]
+    fn test_nll() {
+        let mut x = 5;
+        let y = &x;
+        let _val = *y; // last use of y
+        x = 6; // NLL: OK because y is no longer used
+        assert_eq!(x, 6);
+    }
+
+    #[test]
+    fn test_async() {
+        use futures::executor::block_on;
+        async fn add(a: i32, b: i32) -> i32 {
+            a + b
+        }
+        let result = block_on(add(3, 4));
+        assert_eq!(result, 7);
     }
 }

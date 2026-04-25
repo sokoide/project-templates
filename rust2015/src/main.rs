@@ -1,5 +1,5 @@
-fn main() {
-    println!("--- Rust 1.0 (Core Features) Demo ---");
+fn main() -> Result<(), Box<dyn std::error::Error>> {
+    println!("--- Rust 2015 (Core Features) Demo ---");
 
     // 1. Ownership & Borrowing
     // 所有権の移動（Move）と不変借用（Borrow）の基本
@@ -21,6 +21,8 @@ fn main() {
     let circle = Circle { radius: 1.0 };
     println!("Trait: Area of circle is {:.3}", circle.area());
     println!("Debug Print: {:?}", circle);
+
+    Ok(())
 }
 
 fn print_string(s: &str) {

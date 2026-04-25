@@ -1,6 +1,6 @@
 # Modern Language Feature Demos & Cheat Sheets
 
-このリポジトリは、C++ と Go の主要な言語機能の進化を、実際のコード例とともに分かりやすくまとめた学習リソース兼クイックリファレンスです。
+このリポジトリは、C++ / Go / Rust の主要な言語機能の進化を、実際のコード例とともに分かりやすくまとめた学習リソース兼クイックリファレンスです。
 
 ## 🎯 このリポジトリの目的
 
@@ -32,9 +32,18 @@ Go 1.0 から最新の 1.26 まで。
 - [Go 1.25](./go1.25/README_ja.md) - `testing/synctest`
 - [Go 1.26](./go1.26/README_ja.md) - Green Tea GC、`errors.AsType`
 
+### Rust セクション
+
+Rust 2015 (1.0) から Edition 2024 まで。
+
+- [Rust 2015](./rust2015/README_ja.md) - 所有権・借用・パターンマッチング
+- [Rust 2018](./rust2018/README_ja.md) - `async`/`await`、NLL、`dyn` Trait
+- [Rust 2021](./rust2021/README_ja.md) - 分離キャプチャ、配列 IntoIterator
+- [Rust 2024](./rust2024/README_ja.md) - `impl Trait` キャプチャルール、`gen` 予約語
+
 ## 🛠 使い方
 
-各ディレクトリには `Makefile` または `go.mod` が含まれています。
+各ディレクトリには `Makefile`、`go.mod`、または `Cargo.toml` が含まれています。
 
 ### C++ の場合
 
@@ -48,6 +57,13 @@ make run
 ```bash
 cd go1.26
 go run .
+```
+
+### Rust の場合
+
+```bash
+cd rust2024
+cargo run
 ```
 
 ---
