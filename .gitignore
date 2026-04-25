@@ -8,6 +8,9 @@ out/
 *.exe
 *.pch
 
+# Go binaries (go build output)
+go1.*/go1.*
+
 # IDE / OS
 # .vscode/
 .idea/
