@@ -29,6 +29,20 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         Message::ChangeColor(r, g, b) => println!("Color: R{}, G{}, B{}", r, g, b),
     }
 
+    let msgs: Vec<Message> = vec![
+        Message::Quit,
+        Message::Move { x: 1, y: 2 },
+        Message::ChangeColor(255, 0, 128),
+    ];
+    for m in &msgs {
+        match m {
+            Message::Quit => println!("Quit"),
+            Message::Move { x, y } => println!("Move to ({}, {})", x, y),
+            Message::ChangeColor(r, g, b) => println!("Color: ({}, {}, {})", r, g, b),
+            Message::Write(_) => {}
+        }
+    }
+
     // 3. Option & Result (エラーハンドリング)
     // ---------------------------------------------------------
     // nullの代わりに Option、例外の代わりに Result を使います。
