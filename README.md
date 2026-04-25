@@ -21,9 +21,16 @@ C++11 から C++23、そして次世代の C++26 まで。
 
 ### [Go セクション](./README_go_ja.md)
 
-Go 1.0 から最新の 1.26 (将来予測を含む) まで。
+Go 1.0 から最新の 1.26 まで。
 
-- [Go 1.26 (Demo)](./go1.26/README_ja.md) - 最新機能とランタイムの飛躍
+- [Go 1.16](./go1.16/README_ja.md) - `//go:embed` リソース埋め込み
+- [Go 1.18](./go1.18/README_ja.md) - Generics（史上最大の言語拡張）
+- [Go 1.21](./go1.21/README_ja.md) - `slog`、`slices`、`min`/`max`/`clear`
+- [Go 1.22](./go1.22/README_ja.md) - ループ変数スコープ修正、HTTP ルーティング
+- [Go 1.23](./go1.23/README_ja.md) - カスタムイテレータ
+- [Go 1.24](./go1.24/README_ja.md) - ジェネリック定義型、`os.Root`
+- [Go 1.25](./go1.25/README_ja.md) - `testing/synctest`
+- [Go 1.26](./go1.26/README_ja.md) - Green Tea GC、`errors.AsType`
 
 ## 🛠 使い方
 
