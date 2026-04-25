@@ -15,51 +15,39 @@ make runtest  # テスト実行
 
 ### 1. 多次元添字演算子 (Multidimensional `operator[]`)
 
-C++23 より、`operator[]`が複数の引数を取れるようになりました。
-従来は `m[i][j]` のように連鎖させるしかありませんでしたが、`m[i, j]` と直接書けるようになります。
+**エンジニアが喜ぶポイント:** 行列や画像データへのアクセスが、数学的な記法 `m[r, c]` に近くなり、可読性が向上します。
 
 ```cpp
-class Matrix2D {
-    int data_[3][3]{};
-public:
-    int& operator[](size_t r, size_t c) { return data_[r][c]; }
-};
-
-Matrix2D m;
-m[0, 0] = 1;   // C++23: OK
-m[1, 2] = 7;   // C++23: OK
+// After (C++23)
+m[0, 0] = 1; 
 ```
 
-C++20 以前では `operator[]` は引数 1 個しか取れず、
-`m[0][0]` のように連鎖させるか、`operator()(r, c)` を使う必要がありました。
+```cpp
+// Before (C++20)
+m[0][0] = 1;   // operator[] の連鎖が必要
+m(0, 0) = 1;   // または operator() で代用していた
+```
 
 ---
 
 ### 2. `std::expected<T, E>` — 値かエラーかを返す型
 
-関数の戻り値として「成功値」または「エラー情報」のどちらかを保持する型です。
-例外を使わずにエラーハンドリングができます。
+**エンジニアが喜ぶポイント:** 例外を投げずに「なぜ失敗したか」を型安全に返せます。Rust の `Result` のようなモダンなエラーハンドリングが標準になります。
 
 ```cpp
-#include <expected>
-#include <string>
-
-std::expected<int, std::string> safe_divide(int a, int b) {
-    if (b == 0)
-        return std::unexpected("division by zero");  // エラー
-    return a / b;                                     // 成功
-}
-
-auto r = safe_divide(10, 3);
-if (r) {
-    printf("結果: %d\n", *r);          // 値にアクセス
-} else {
-    printf("エラー: %s\n", r.error().c_str());  // エラーにアクセス
+// After (C++23)
+std::expected<int, std::string> result = safe_divide(10, 0);
+if (!result) {
+    printf("Error: %s\n", result.error().c_str());
 }
 ```
 
-`std::optional` は値の有無だけでしたが、`std::expected` はエラー理由も保持できます。
-Rust の `Result<T, E>` に相当する機能です。
+```cpp
+// Before (C++20)
+// 1. 例外を投げる（パフォーマンスや制約で使えない場合がある）
+// 2. std::optional を使う（エラー理由が分からない）
+// 3. 戻り値でエラーコードを返し、ポインタ引数で値を返す（古いスタイル）
+```
 
 ---
 

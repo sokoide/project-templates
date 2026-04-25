@@ -19,17 +19,18 @@ make runtest  # テスト実行
 
 ### 1. `auto` — 型推論
 
-変数の型を初期化子から自動的に推論します。冗長な型名の繰り返しをなくせます。
+**エンジニアが喜ぶポイント:** 複雑なイテレータ型や長いテンプレート名を何度も書く苦行から解放されます。
+
+変数の型を初期化子から自動的に推論します。
 
 ```cpp
+// After (C++11)
 auto x = 42;                        // int
 auto name = std::string("hello");   // std::string
 ```
 
-C++11 以前では、変数ごとに型を明示的に書く必要がありました。
-
 ```cpp
-// C++11以前
+// Before (C++98)
 int x = 42;
 std::string name = std::string("hello");
 ```
@@ -38,23 +39,19 @@ std::string name = std::string("hello");
 
 ### 2. Range-based `for` — 範囲for文
 
+**エンジニアが喜ぶポイント:** ループの境界条件ミス（オフバイワンエラー）が構造的に発生しなくなります。
+
 配列やコンテナの全要素を簡潔に反復できます。
 
 ```cpp
+// After (C++11)
 std::vector<int> v = {1, 2, 3, 4, 5};
 for (auto n : v)
     printf(" %d", n);
-
-// std::mapでも同様に使える
-std::map<std::string, int> m;
-for (auto &kv : m)
-    printf(" %s=%d", kv.first.c_str(), kv.second);
 ```
 
-C++11 以前ではイテレータを使う必要がありました。
-
 ```cpp
-// C++11以前
+// Before (C++98)
 for (std::vector<int>::iterator it = v.begin(); it != v.end(); ++it)
     printf(" %d", *it);
 ```

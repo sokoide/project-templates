@@ -1,6 +1,6 @@
 # Go 1.26 機能デモ
 
-Go 1.26 で追加された主要な機能を実際のコードで解説します。
+Go 1.26 で追加された主要な機能をコードで解説します。
 
 ## ビルドと実行
 
@@ -14,123 +14,86 @@ go test ./... # テスト
 
 ### 1. `new` 式初期化 — ポインタに値を指定して生成
 
-組み込み関数 `new` の引数に式を渡せるようになりました。
-これにより、ポインタフィールドの初期化が一行で書けます。
+JSON パラメータやオプション設定で頻出する
+「値へのポインタ」を一時変数なしで一行で書けます。
 
 ```go
-type Person struct {
-    Name string `json:"name"`
-    Age  *int   `json:"age"`
-}
-
-born := time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)
+// After (Go 1.26)
 p := Person{
-    Name: "Alice",
-    Age:  new(yearsSince(born)), // Go 1.26: 式の結果へのポインタを生成
+    Age: new(yearsSince(born)),
 }
 ```
 
-Go 1.25 以前では `new(int)` でゼロ値のポインタを作ってから代入するか、
-ヘルパー関数を定義する必要がありました。
-
 ```go
-// Go 1.25 以前
+// Before (Go 1.25)
 age := yearsSince(born)
-p := Person{Name: "Alice", Age: &age}
+p := Person{
+    Age: &age, // 直接 &yearsSince(born) とは書けなかった
+}
 ```
-
-JSON のオプショナルフィールドや protocol buffers のポインタフィールドで
-特に便利です。
 
 ---
 
 ### 2. 自己参照型制約 (Self-referential type constraints)
 
-ジェネリクスの型制約で自分自身を参照できるようになりました。
-「自分と同じ型を引数に取る」ようなインターフェースを自然に表現できます。
+「自分と同じ型を引数に取る」ような再帰的な型制約を、
+ハックなしで自然に記述できるようになります。
 
 ```go
+// After (Go 1.26)
 type Adder[A Adder[A]] interface {
     Add(A) A
 }
-
-type Int int
-
-func (a Int) Add(b Int) Int { return a + b }
-
-func algo[A Adder[A]](x, y A) A {
-    return x.Add(y)
-}
-
-algo(Int(3), Int(4)) // => 7
 ```
 
-Go 1.25 以前では `Adder[A Adder[A]]` のような自己参照がコンパイルエラーに
-なっていました。実用的な例として、順序付きコレクションの要素型に
-`Compare(T) int` を要求する制約などが書きやすくなります。
+```go
+// Before (Go 1.25)
+// 同様の定義をしようとすると
+// "invalid recursive type" エラーが発生し、
+// ジェネリクスを用いない interface 定義などで
+// 妥協する必要がありました。
+```
 
 ---
 
 ### 3. `errors.AsType` — ジェネリック版 `errors.As`
 
-エラー値から特定の型を型安全に取り出せるジェネリック関数です。
-`errors.As` の型アサーション版で、より簡潔に書けます。
+ターゲット変数の宣言を分離する必要がなくなり、
+`if` 文の条件式の中で完結するため変数スコープを
+最小限に抑えられます。
 
 ```go
-type NotFoundError struct {
-    Name string
-}
-
-func (e *NotFoundError) Error() string { return "not found: " + e.Name }
-
-err := findItem("widget")
+// After (Go 1.26)
 if ne, ok := errors.AsType[*NotFoundError](err); ok {
-    fmt.Println(ne.Name) // "widget"
+    fmt.Println(ne.Name)
 }
 ```
 
-Go 1.25 以前の `errors.As` ではターゲット変数を `any` 型で宣言し、
-関数にポインタを渡す必要がありました。
-
 ```go
-// Go 1.25 以前
+// Before (Go 1.25)
 var ne *NotFoundError
 if errors.As(err, &ne) {
     fmt.Println(ne.Name)
 }
 ```
 
-`AsType` は型引数で目的の型を明示するため、
-間違った型を渡すリスクがありません。
-
 ---
 
-### 4. `reflect` イテレータ — 構造体フィールド・メソッドの反復
+### 4. `reflect` イテレータ — 構造体フィールドの反復
 
-`reflect` パッケージにイテレータメソッドが追加されました。
-`range` で構造体のフィールドやメソッドを簡潔に列挙できます。
+リフレクションを用いたメタプログラミングにおいて、
+泥臭いインデックスループが消え `range` で直感的に
+スキャンできるようになります。
 
 ```go
-type Point struct{ X, Y int }
-
-p := Point{X: 10, Y: 20}
-
-// 構造体の型情報を反復
-for field := range reflect.TypeOf(p).Fields() {
-    fmt.Println(field.Name) // "X", "Y"
-}
-
-// 構造体の値を反復（フィールド情報と値のペア）
+// After (Go 1.26)
 for field, val := range reflect.ValueOf(p).Fields() {
     fmt.Printf("%s=%v\n", field.Name, val.Int())
 }
 ```
 
-Go 1.25 以前では `NumField()` と `Field(i)` を使った
-インデックスループを書く必要がありました。
-
 ```go
-// Go 1.25 以前
+// Before (Go 1.25)
 t := reflect.TypeOf(p)
 for i := 0; i < t.NumField(); i++ {
     fmt.Println(t.Field(i).Name)
@@ -141,61 +104,63 @@ for i := 0; i < t.NumField(); i++ {
 
 ### 5. `slog.NewMultiHandler` — 複数ログハンドラの統合
 
-複数の `slog.Handler` を一つにまとめる `MultiHandler` が追加されました。
-ログをファイルと標準出力に同時出力するような用途で便利です。
+「標準出力とファイルの双方にログを出したい」といった
+定番の要件が、外部ライブラリや自前実装なしで
+1 行で解決します。
 
 ```go
-textHandler := slog.NewTextHandler(os.Stdout, &slog.HandlerOptions{Level: slog.LevelInfo})
-handler := slog.NewMultiHandler(textHandler)
-logger := slog.New(handler)
-logger.Info("multi-handler demo", "key", "value")
+// After (Go 1.26)
+handler := slog.NewMultiHandler(stdoutHandler, fileHandler)
 ```
 
-Go 1.25 以前では自前でマルチハンドラを実装するか、
-サードパーティライブラリに頼る必要がありました。
+```go
+// Before (Go 1.25)
+// 複数のハンドラをラップして各メソッドを転送する
+// 構造体を自前で実装するか、サードパーティ製の
+// マルチハンドラを利用する必要がありました。
+```
 
 ---
 
 ### 6. `bytes.Buffer.Peek` — 読み込み位置を進めずに覗き見
 
-`bytes.Buffer` に `Peek` メソッドが追加されました。
-バッファの先頭 N バイトを、読み込み位置を進めずに取得できます。
+バッファの内容を消費せずに先頭を確認するために、
+わざわざ `bufio.Reader` でラップする手間がなくなります。
 
 ```go
-var buf bytes.Buffer
-buf.WriteString("hello world")
-
-peeked, _ := buf.Peek(5)
-fmt.Printf("peeked: %s\n", peeked) // "hello"
-
-fmt.Println(buf.Len()) // 11（Peek は消費しない）
+// After (Go 1.26)
+peeked, _ := buf.Peek(5) // 消費せずに中身を確認
 ```
 
-Go 1.25 以前では `bufio.Reader` を使うか、
-バッファの `Bytes()` を使って手動でスライスを取得する必要がありました。
-`bytes.Buffer` で直接 `Peek` できることで、
-パーサーやプロトコル実装が書きやすくなります。
+```go
+// Before (Go 1.25)
+// bytes.Buffer には Peek がなかったため、
+// 1. bufio.NewReader(&buf) でラップする
+// 2. buf.Bytes() でスライスを直接触る
+//    （書き込みがあると無効になるリスクあり）
+// といった工夫が必要でした。
+```
 
 ---
 
 ### 7. Green Tea GC — 新ガベージコレクタのデフォルト化
 
-Go 1.25 で実験導入された Green Tea GC がデフォルト有効化されました。
-小オブジェクトのマーク・スキャンにおける局所性と CPU スケーラビリティが改善され、
-GC オーバーヘッドが 10–40% 削減されています。
+コードを 1 行も変えることなくコンパイルし直すだけで、
+実行時の GC オーバーヘッドが最大 40% 削減されます。
 
 ```text
-# 無効化する場合（Go 1.27 でオプトアウト設定は削除予定）
-GOEXPERIMENT=nogreenteagc go build .
+// Go 1.26 では「何もしない」のが最善です。
+// ランタイムが自動的に最新のアルゴリズム
+// （Green Tea GC）を使用します。
 ```
 
-コードからの直接の呼び出しはありませんが、
-すべての Go 1.26 プログラムで自動的に適用されます。
-Intel Ice Lake / AMD Zen 4 以降の CPU では
-ベクトル命令を活用したスキャンによりさらに 10% 程度の改善が見込まれます。
+| 特徴 | 詳細 |
+| --- | --- |
+| **改善幅** | 10-40% のオーバーヘッド削減 |
+| **仕組み** | 小オブジェクトのスキャン効率化とスケーラビリティ向上 |
+| **ハードウェア最適化** | Ice Lake / Zen 4 以降でベクトル命令により加速 |
 
-Go の GC は 1.5 の並行化以来、段階的に改善されてきましたが、
-Green Tea GC はその中でも最も大きな飛躍です。
+Go 1.5 の並行化以来、最も大きな GC の進化と言えます。
 
 ---
 
@@ -204,9 +169,9 @@ Green Tea GC はその中でも最も大きな飛躍です。
 | 機能 | パッケージ | 概要 |
 | --- | --- | --- |
 | `new` 式初期化 | （言語機能） | `new(expr)` で値付きポインタを生成 |
-| 自己参照型制約 | （言語機能） | ジェネリクスで自分自身を参照する制約 |
+| 自己参照型制約 | （言語機能） | 再帰的な型制約を自然に記述 |
 | `errors.AsType` | `errors` | ジェネリック版 `As`、型安全なエラー抽出 |
 | `reflect` イテレータ | `reflect` | `Fields`/`Methods` で range 反復 |
 | `NewMultiHandler` | `log/slog` | 複数ハンドラの統合 |
-| `Buffer.Peek` | `bytes` | 読み込み位置を進めずにバッファを覗き見 |
-| Green Tea GC | （ランタイム） | 新 GC デフォルト化、オーバーヘッド 10–40% 削減 |
+| `Buffer.Peek` | `bytes` | 読み込み位置を進めずに覗き見 |
+| Green Tea GC | （ランタイム） | 新 GC デフォルト化、オーバーヘッド削減 |
