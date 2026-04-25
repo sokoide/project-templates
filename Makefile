@@ -23,4 +23,8 @@ format:
 	@echo "Formatting C/C++ files with clang-format..."
 	@find . -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.hpp" -o -name "*.c" \) \
 		! -path "*/node_modules/*" ! -path "*/.gomodcache/*" ! -path "*/conductor/*" \
-		-exec clang-format -i {} + 
+		-exec clang-format -i {} +
+	@echo "Formatting Rust files with cargo fmt..."
+	@for d in $(filter rust%,$(SUBDIRS)); do \
+		$(MAKE) -C $$d format; \
+	done

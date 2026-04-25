@@ -6,7 +6,9 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // Rustの最も重要な概念。メモリの安全性を保証します。
     let s1 = String::from("hello");
     let s2 = s1; // 所有権の移動 (Move): s1はこれ以降使えません
+
     // println!("{}", s1); // コンパイルエラー！
+    println!("s2: {}", s2);
 
     let s3 = String::from("world");
     print_string(&s3); // 借用 (Borrowing): 所有権を貸し出し、読み取り専用でアクセス
@@ -42,7 +44,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let circle = Circle { radius: 1.0 };
     print_area(circle);
 
-    let rectangle = Rectangle { width: 4.0, height: 2.0 };
+    let rectangle = Rectangle {
+        width: 4.0,
+        height: 2.0,
+    };
     print_area(rectangle);
 
     // 5. Lifetimes (ライフタイム)
@@ -87,15 +92,24 @@ trait HasArea {
 }
 
 #[derive(Debug)]
-struct Circle { radius: f64 }
+struct Circle {
+    radius: f64,
+}
 impl HasArea for Circle {
-    fn area(&self) -> f64 { std::f64::consts::PI * self.radius * self.radius }
+    fn area(&self) -> f64 {
+        std::f64::consts::PI * self.radius * self.radius
+    }
 }
 
 #[derive(Debug)]
-struct Rectangle { width: f64, height: f64 }
+struct Rectangle {
+    width: f64,
+    height: f64,
+}
 impl HasArea for Rectangle {
-    fn area(&self) -> f64 { self.width * self.height }
+    fn area(&self) -> f64 {
+        self.width * self.height
+    }
 }
 
 // ジェネリクスを用いた関数
@@ -105,7 +119,11 @@ fn print_area<T: HasArea>(shape: T) {
 
 // ライフタイム注釈: 'a は、返される参照が引数の参照と同じ期間だけ有効であることを保証します
 fn longest<'a>(x: &'a str, y: &'a str) -> &'a str {
-    if x.len() > y.len() { x } else { y }
+    if x.len() > y.len() {
+        x
+    } else {
+        y
+    }
 }
 
 #[cfg(test)]
@@ -123,7 +141,7 @@ mod tests {
         let result = divide(10.0, 0.0);
         assert!(result.is_err());
         assert_eq!(result.unwrap_err(), "Cannot divide 10 by zero");
-        
+
         assert_eq!(divide(10.0, 2.0).unwrap(), 5.0);
     }
 }

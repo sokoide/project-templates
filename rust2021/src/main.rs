@@ -18,7 +18,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     // Rust 2018 までは p 全体が借用されていたため、以下の score 変更はエラーだった
     p.score += 10; // p.score を可変借用（2021 なら OK）
-    
+
     c();
     println!("Disjoint capture: score updated to {}", p.score);
 
@@ -26,7 +26,8 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // 配列を直接値として反復できる（.iter() 不要）
     let arr = [1, 2, 3];
     println!("IntoIterator for arrays:");
-    for x in arr { // 2018 では &arr または arr.iter() が必要だった
+    for x in arr {
+        // 2018 では &arr または arr.iter() が必要だった
         print!("{} ", x);
     }
     println!();
