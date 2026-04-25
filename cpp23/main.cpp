@@ -1,13 +1,16 @@
 #include "sub.h"
+
 #include <cstdio>
 #include <utility>
 
 int main() {
     //--- C++23: multidimensional operator[] ---
     Matrix2D m;
-    for (int i = 0; i < 3; i++)
-        for (int j = 0; j < 3; j++)
+    for (int i = 0; i < 3; i++) {
+        for (int j = 0; j < 3; j++) {
             m[i, j] = i * 3 + j + 1;
+        }
+    }
     printf("m[0,0]=%d m[1,2]=%d m[2,2]=%d\n", m[0, 0], m[1, 2], m[2, 2]);
 
     //--- C++23: std::expected ---
@@ -27,9 +30,9 @@ int main() {
                   .or_else([] { return std::optional{0}; });
     printf("maybe_half(8)->transform(*3)->and_then->or_else: %d\n", *ok);
 
-    auto ng = maybe_half(7)
-                  .transform([](int n) { return n * 3; })
-                  .or_else([] { return std::optional{-1}; });
+    auto ng = maybe_half(7).transform([](int n) { return n * 3; }).or_else([] {
+        return std::optional{-1};
+    });
     printf("maybe_half(7)->transform->or_else(-1): %d\n", *ng);
 
     //--- C++23: if consteval ---
@@ -45,7 +48,9 @@ int main() {
 
     //--- C++23: deducing this ---
     struct Doubler {
-        int apply(this const Doubler &, int n) { return n * 2; }
+        int apply(this const Doubler&, int n) {
+            return n * 2;
+        }
     };
     printf("deducing this: %d\n", Doubler{}.apply(21));
 

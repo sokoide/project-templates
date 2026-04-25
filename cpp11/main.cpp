@@ -1,4 +1,5 @@
 #include "sub.h"
+
 #include <cstdio>
 #include <map>
 #include <vector>
@@ -12,12 +13,11 @@ int main() {
     //--- C++11: range-based for ---
     std::vector<int> v = {1, 2, 3, 4, 5};
     printf("range-for:");
-    for (auto n : v)
-        printf(" %d", n);
+    for (auto n : v) printf(" %d", n);
     printf("\n");
 
     //--- C++11: lambda ---
-    auto greet = [](const char *s) { printf("lambda: %s\n", s); };
+    auto greet = [](const char* s) { printf("lambda: %s\n", s); };
     greet("hello");
     int capture = 10;
     auto add = [capture](int n) { return n + capture; };
@@ -53,8 +53,7 @@ int main() {
     //--- C++11: initializer_list ---
     auto sorted = make_sorted({5, 3, 1, 4, 2});
     printf("sorted:");
-    for (auto n : sorted)
-        printf(" %d", n);
+    for (auto n : sorted) printf(" %d", n);
     printf("\n");
 
     //--- C++11: range-based for with map ---
@@ -62,8 +61,7 @@ int main() {
     m["a"] = 1;
     m["b"] = 2;
     printf("map:");
-    for (auto &kv : m)
-        printf(" %s=%d", kv.first.c_str(), kv.second);
+    for (auto& kv : m) printf(" %s=%d", kv.first.c_str(), kv.second);
     printf("\n");
 
     return 0;

@@ -1,4 +1,5 @@
 #include "sub.h"
+
 #include <cstdio>
 #include <ranges>
 #include <vector>
@@ -11,7 +12,9 @@ int main() {
     //--- C++20: three-way comparison (<=>) ---
     Point a{1, 2}, b{3, 4}, c{1, 2};
     auto cmp = (a <=> b);
-    printf("a<=>b: %s\n", std::is_lt(cmp) ? "less" : std::is_gt(cmp) ? "greater" : "equal");
+    printf("a<=>b: %s\n", std::is_lt(cmp)   ? "less"
+                          : std::is_gt(cmp) ? "greater"
+                                            : "equal");
     printf("a==c: %d\n", a == c);
 
     //--- C++20: std::span ---
@@ -23,8 +26,10 @@ int main() {
     //--- C++20: designated initializers ---
     Config cfg = make_default_config();
     Config custom{.width = 1920, .height = 1080, .fullscreen = true};
-    printf("default config: %dx%d fs=%d\n", cfg.width, cfg.height, cfg.fullscreen);
-    printf("custom config: %dx%d fs=%d\n", custom.width, custom.height, custom.fullscreen);
+    printf("default config: %dx%d fs=%d\n", cfg.width, cfg.height,
+           cfg.fullscreen);
+    printf("custom config: %dx%d fs=%d\n", custom.width, custom.height,
+           custom.fullscreen);
 
     //--- C++20: consteval ---
     static_assert(square(5) == 25);
@@ -44,8 +49,8 @@ int main() {
 
     //--- C++20: ranges views pipeline ---
     namespace rv = std::views;
-    auto result = nums | rv::filter([](int n) { return n % 2 == 0; })
-                       | rv::transform([](int n) { return n * n; });
+    auto result = nums | rv::filter([](int n) { return n % 2 == 0; }) |
+                  rv::transform([](int n) { return n * n; });
     printf("squared evens:");
     for (auto n : result) printf(" %d", n);
     printf("\n");

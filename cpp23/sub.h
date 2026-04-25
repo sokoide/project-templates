@@ -9,8 +9,12 @@ class Matrix2D {
     int data_[3][3]{};
 
   public:
-    int &operator[](size_t r, size_t c) { return data_[r][c]; }
-    const int &operator[](size_t r, size_t c) const { return data_[r][c]; }
+    int& operator[](size_t r, size_t c) {
+        return data_[r][c];
+    }
+    const int& operator[](size_t r, size_t c) const {
+        return data_[r][c];
+    }
 };
 
 // C++23: std::expected<T, E>

@@ -1,4 +1,5 @@
 #include "sub.h"
+
 #include <gtest/gtest.h>
 #include <map>
 #include <tuple>
@@ -36,8 +37,7 @@ TEST(StructuredBindings, MapIter) {
     m[1] = "a";
     m[2] = "b";
     int sum = 0;
-    for (auto &[k, v] : m)
-        sum += k;
+    for (auto& [k, v] : m) sum += k;
     EXPECT_EQ(sum, 3);
 }
 

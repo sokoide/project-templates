@@ -1,4 +1,5 @@
 #include "sub.h"
+
 #include <cstdio>
 #include <map>
 #include <optional>
@@ -38,7 +39,7 @@ int main() {
     std::map<std::string, int> scores;
     scores["alice"] = 90;
     scores["bob"] = 85;
-    for (auto &[name, score] : scores) {
+    for (auto& [name, score] : scores) {
         printf("  %s: %d\n", name.c_str(), score);
     }
 

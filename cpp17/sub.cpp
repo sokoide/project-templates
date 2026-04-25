@@ -1,16 +1,17 @@
 #include "sub.h"
+
 #include <algorithm>
 
-std::optional<int> find_index(const std::vector<int> &v, int target) {
+std::optional<int> find_index(const std::vector<int>& v, int target) {
     auto it = std::find(v.begin(), v.end(), target);
     if (it != v.end())
         return static_cast<int>(it - v.begin());
     return std::nullopt;
 }
 
-std::string value_type_name(const Value &v) {
+std::string value_type_name(const Value& v) {
     return std::visit(
-        [](auto &&arg) -> std::string {
+        [](auto&& arg) -> std::string {
             using T = std::decay_t<decltype(arg)>;
             if constexpr (std::is_same_v<T, int>)
                 return "int";
@@ -38,4 +39,6 @@ size_t count_words(std::string_view sv) {
     return count;
 }
 
-DivResult int_div(int a, int b) { return {a / b, a % b}; }
+DivResult int_div(int a, int b) {
+    return {a / b, a % b};
+}

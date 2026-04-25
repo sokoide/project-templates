@@ -7,13 +7,15 @@
 #include <vector>
 
 // C++20: concepts
-template <std::integral T> T generic_add(T a, T b);
-template <std::floating_point T> T generic_add(T a, T b);
+template <std::integral T>
+T generic_add(T a, T b);
+template <std::floating_point T>
+T generic_add(T a, T b);
 
 // C++20: three-way comparison (spaceship operator)
 struct Point {
     int x, y;
-    auto operator<=>(const Point &) const = default;
+    auto operator<=>(const Point&) const = default;
 };
 
 // C++20: std::span
@@ -28,8 +30,10 @@ struct Config {
 Config make_default_config();
 
 // C++20: consteval
-consteval int square(int n) { return n * n; }
+consteval int square(int n) {
+    return n * n;
+}
 
 // C++20: ranges
-std::vector<int> filter_even(const std::vector<int> &input);
-std::vector<int> transform_double(const std::vector<int> &input);
+std::vector<int> filter_even(const std::vector<int>& input);
+std::vector<int> transform_double(const std::vector<int>& input);

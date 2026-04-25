@@ -19,4 +19,8 @@ EXEC := $(shell command -v pnpm >/dev/null 2>&1 && echo "pnpm exec" || echo "npx
 format:
 	@echo "Formatting markdown files using $(RUNNER)..."
 	$(RUNNER) markdownlint-cli "**/*.md" --ignore "conductor/**" --ignore "CLAUDE.md" --ignore "node_modules/**" --ignore ".gomodcache/**" --fix
-	$(EXEC) textlint --fix "*.md" "**/*.md" 
+	$(EXEC) textlint --fix "*.md" "**/*.md"
+	@echo "Formatting C/C++ files with clang-format..."
+	@find . -type f \( -name "*.cpp" -o -name "*.h" -o -name "*.hpp" -o -name "*.c" \) \
+		! -path "*/node_modules/*" ! -path "*/.gomodcache/*" ! -path "*/conductor/*" \
+		-exec clang-format -i {} + 

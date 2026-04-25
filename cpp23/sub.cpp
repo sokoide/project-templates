@@ -1,7 +1,11 @@
 #include "sub.h"
 
-int add(int a, int b) { return a + b; }
-int sub(int a, int b) { return a - b; }
+int add(int a, int b) {
+    return a + b;
+}
+int sub(int a, int b) {
+    return a - b;
+}
 
 std::expected<int, std::string> safe_divide(int a, int b) {
     if (b == 0)
